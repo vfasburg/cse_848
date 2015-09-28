@@ -21,7 +21,17 @@ from scipy.io import wavfile # get the api
 # toolbox.register("select", tools.selTournament, tournsize=3)
 
 #get test file data
+binMinimums = [0, 1.93069772888325, 2.68269579527973, 3.72759372031494, 5.17947467923121, 7.19685673001152, 10, 13.8949549437314, 19.3069772888325, 26.8269579527973, 37.2759372031494, 51.7947467923121, 71.9685673001152, 100, 138.949549437314, 193.069772888325, 268.269579527972, 372.759372031494, 517.947467923121, 719.685673001152, 1000, 1389.49549437314, 1930.69772888325, 2682.69579527972, 3727.59372031494, 5179.47467923121, 7196.85673001152, 10000, 13894.9549437314, 19306.9772888325, 26826.9579527973, 37275.9372031494, 51794.7467923121, 71968.5673001151, 100000, 138949.549437314, 193069.772888325, 268269.579527973, 372759.372031494, 517947.467923121, 719685.673001151, 1000000, 1389495.49437314, 1930697.72888325, 2682695.79527973, 3727593.72031494, 5179474.67923121, 7196856.73001151]
+def getBin(energy):
+	i = 0
+	# print energy
+	while energy > binMinimums[i]:
+		i += 1
+	# print i - 1
+	return i - 1
 fs, data = wavfile.read(r"C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav")
+data = data[:132300]
+
 N = 512
 start = 0
 end = N
@@ -39,10 +49,9 @@ while(end < data.size):
 	freq = rfft(x)
 	# print max(freq)
 	# update the histogram
-	histogram = histogram * erosion
 	# first & last freqs in freq aren't real
 	for f in range(1, N-1):
-		binnum = numpy.floor(abs(freq[f])/maxEnergy * bins)
+		binnum = getBin(abs(freq[f]))
 		histogram[f][binnum] += 1
 		curmax = 0
 		maxbin = 0
