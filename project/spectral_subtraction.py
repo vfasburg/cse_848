@@ -27,18 +27,40 @@ start = 0
 end = N
 ham = numpy.hamming(N)
 xnew = numpy.zeros(data.size)
-print "xnew length is %i", xnew.size
+# set up histogram
+bins = 50
+erosion = 0.05 #makes histogram favor new values
+histogram = numpy.zeros((N, bins))
+maxEnergy = 2000000 # this number is an educated guess based on a matlab experiment
+noiseEnergy = numpy.zeros(N)
 while(end < data.size):
+	#window time domain data & get fft
 	x = data[start:end] * ham
 	freq = rfft(x)
+	# print max(freq)
+	# update the histogram
+	histogram = histogram * erosion
+	# first & last freqs in freq aren't real
+	for f in range(1, N-1):
+		binnum = numpy.floor(abs(freq[f])/maxEnergy * bins)
+		histogram[f][binnum] += 1
+		curmax = 0
+		maxbin = 0
+		for curbin in range(0,bins): #search for bin index w maximum value
+			if(histogram[f][curbin] > curmax):
+				curmax = histogram[f][curbin]
+				maxbin = curbin
+		# get energy associated with most used bin
+		noiseEnergy[f] = (maxbin + 0.5) * maxEnergy/bins
+	# subtract estimated noise energy
+	freq -= noiseEnergy
+	freq[freq<0] = 0
 	xnew[start:end] += irfft(freq)
+
 	# use 50% overlap and add ifft output
 	end += N/2
 	start += N/2
 
-print data[5001:5010]
-print xnew[5001:5010]
-print xnew[550001:550010]/data[550001:550010]
 wavfile.write(r"C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty_new.wav", fs, xnew.astype(numpy.int16))
 
 #dirty = wave.open(r"C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav")
