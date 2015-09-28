@@ -29,8 +29,7 @@ def getBin(energy):
 		i += 1
 	# print i - 1
 	return i - 1
-fs, data = wavfile.read(r"C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav")
-data = data[:132300]
+fs, data = wavfile.read(r".\audio\I_am_sitting_dirty.wav")
 
 N = 512
 start = 0
@@ -41,7 +40,6 @@ xnew = numpy.zeros(data.size)
 bins = 50
 erosion = 0.05 #makes histogram favor new values
 histogram = numpy.zeros((N, bins))
-maxEnergy = 2000000 # this number is an educated guess based on a matlab experiment
 noiseEnergy = numpy.zeros(N)
 while(end < data.size):
 	#window time domain data & get fft
@@ -49,6 +47,7 @@ while(end < data.size):
 	freq = rfft(x)
 	# print max(freq)
 	# update the histogram
+	histogram = histogram * erosion
 	# first & last freqs in freq aren't real
 	for f in range(1, N-1):
 		binnum = getBin(abs(freq[f]))
@@ -60,17 +59,19 @@ while(end < data.size):
 				curmax = histogram[f][curbin]
 				maxbin = curbin
 		# get energy associated with most used bin
-		noiseEnergy[f] = (maxbin + 0.5) * maxEnergy/bins
+		# if f % 50 == 0:
+			# print "maxbin %i freq %i", maxbin, f
+		noiseEnergy[f] = binMinimums[maxbin]
 	# subtract estimated noise energy
-	freq -= noiseEnergy
-	freq[freq<0] = 0
+	freq = freq * (abs(freq) - noiseEnergy)/abs(freq)
+	freq[abs(freq)<0] = 0
 	xnew[start:end] += irfft(freq)
 
 	# use 50% overlap and add ifft output
 	end += N/2
 	start += N/2
 
-wavfile.write(r"C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty_new.wav", fs, xnew.astype(numpy.int16))
+wavfile.write(r".\audio\I_am_sitting_processed.wav", fs, xnew.astype(numpy.int16))
 
 #dirty = wave.open(r"C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav")
 #print(dirty.getframerate())
