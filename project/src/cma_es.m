@@ -2,11 +2,11 @@ function xmin=cma_es   % (mu/mu_w, lambda)-CMA-ES
 
   % --------------------  Initialization --------------------------------  
   % User defined input parameters (need to be edited)
-  N = 3;               % number of objective variables/problem dimension
+  N = 6;               % number of objective variables/problem dimension
   xmean = rand(N,1);    % objective variables initial point
-  sigma = 0.3;          % coordinate wise standard deviation (step size)
+  sigma = 0.2;          % coordinate wise standard deviation (step size)
   stopfitness = 1e-10;  % stop if fitness < stopfitness (minimization)
-  stopeval = 100*N^2;   % stop after stopeval number of function evaluations
+  stopeval = 10*N^2;   % stop after stopeval number of function evaluations
   
   % Strategy parameter setting: Selection  
   lambda = 4+floor(3*log(N));  % population size, offspring number
@@ -32,18 +32,22 @@ function xmin=cma_es   % (mu/mu_w, lambda)-CMA-ES
   eigeneval = 0;                      % track update of B and D
   chiN=N^0.5*(1-1/(4*N)+1/(21*N^2));  % expectation of 
                                       %   ||N(0,I)|| == norm(randn(N,1))
-  
+  [clean, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_clean.wav');
+  [dirty, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav');
+    
+                                      
   % -------------------- Generation Loop --------------------------------
   counteval = 0;  % the next 40 lines contain the 20 lines of interesting code 
   while counteval < stopeval
     
       % Generate and evaluate lambda offspring
-      for k=1:lambda,
+      tic;
+      parfor k=1:lambda,
           arx(:,k) = xmean + sigma * B * (D .* randn(N,1)); % m + sig * Normal(0,C) 
-          arfitness(k) = fitness(arx(:,k)); % objective function call
+          arfitness(k) = fitness(clean, dirty, arx(:,k)); % objective function call
           counteval = counteval+1;
       end
-    
+      toc
       % Sort by fitness and compute weighted mean into xmean
       [arfitness, arindex] = sort(arfitness); % minimization
       xold = xmean;

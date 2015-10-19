@@ -1,6 +1,5 @@
 function [y, rms] = noise_gate(x, threshold, attackTime, releaseTime) % , ratio)
     % threshold between 0 and 1, attack/release times in ms
-    tic
     y = zeros(size(x));
     attackSamples = round(attackTime * 160); %convert ms to samples
     releaseSamples = round(releaseTime * 160);
@@ -27,5 +26,4 @@ function [y, rms] = noise_gate(x, threshold, attackTime, releaseTime) % , ratio)
 
         y(i) = (1 - cur_gain) * x(i);
     end
-    toc 
 end

@@ -114,33 +114,34 @@ end
 
 esTSNR=news;
 %% --------------- HRNR -----------------------
+% 
+% %non linearity
+% newharm= max(esTSNR,0);
+% news = zeros(l,1);
+% %
+% for m = 0:max_m
+%    begin = m*offset+1;    
+%    iend = m*offset+wl;
+% 
+%    nharm = hanwin.*newharm(begin:iend);
+%    ffth = abs(fft(nharm,NFFT));          %perform fast fourier transform
+% 
+%    snrham= ( (tsnra(:,m+1)).*(abs(newmags(:,m+1)).^2) + (1-(tsnra(:,m+1))) .* (ffth.^2) ) ./d;
+%    
+%    newgain= (snrham./(snrham+1));
+%    %newgain=max(newgain,0.1);  
+%    
+%    newgain=gaincontrol(newgain,NFFT/2);
+%    
+%    newmag = newgain .*  xmaga(:,m+1);
+%  
+%    ffty = newmag.*exp(i*phasea(:,m+1));
+%    
+%    news(begin:begin+NFFT-1) = news(begin:begin+NFFT-1) + real(ifft(ffty,NFFT))/normFactor;
+% end;
+% %Output
+% esHRNR=news;
 
-%non linearity
-newharm= max(esTSNR,0);
-news = zeros(l,1);
-%
-for m = 0:max_m
-   begin = m*offset+1;    
-   iend = m*offset+wl;
-
-   nharm = hanwin.*newharm(begin:iend);
-   ffth = abs(fft(nharm,NFFT));          %perform fast fourier transform
-
-   snrham= ( (tsnra(:,m+1)).*(abs(newmags(:,m+1)).^2) + (1-(tsnra(:,m+1))) .* (ffth.^2) ) ./d;
-   
-   newgain= (snrham./(snrham+1));
-   %newgain=max(newgain,0.1);  
-   
-   newgain=gaincontrol(newgain,NFFT/2);
-   
-   newmag = newgain .*  xmaga(:,m+1);
- 
-   ffty = newmag.*exp(i*phasea(:,m+1));
-   
-   news(begin:begin+NFFT-1) = news(begin:begin+NFFT-1) + real(ifft(ffty,NFFT))/normFactor;
-end;
-%Output
-esHRNR=news;
 
 % figure;
 % [B,f,T] = specgram(ns,NFFT,fs,hanning(wl),wl-10);
@@ -226,6 +227,5 @@ NewGain=abs(fft(ImpulseR2,NFFT));
 meanNewGain=mean(NewGain.^2);
 
 NewGain=NewGain*sqrt(meanGain/meanNewGain); % normalisation to keep the same energy (if white r.v.)
-
 
    
