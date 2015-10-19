@@ -33,8 +33,9 @@ function xmin=cma_es   % (mu/mu_w, lambda)-CMA-ES
   chiN=N^0.5*(1-1/(4*N)+1/(21*N^2));  % expectation of 
                                       %   ||N(0,I)|| == norm(randn(N,1))
   [clean, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_clean.wav');
-  [dirty, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav');
-    
+  clean = clean * 1/max(abs(clean));
+  [noisy, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav');
+  noisy = noisy * 1/max(abs(noisy)); 
                                       
   % -------------------- Generation Loop --------------------------------
   counteval = 0;  % the next 40 lines contain the 20 lines of interesting code 
@@ -44,7 +45,9 @@ function xmin=cma_es   % (mu/mu_w, lambda)-CMA-ES
       tic;
       parfor k=1:lambda,
           arx(:,k) = xmean + sigma * B * (D .* randn(N,1)); % m + sig * Normal(0,C) 
-          arfitness(k) = fitness(clean, dirty, arx(:,k)); % objective function call
+          arx(:,k) = max(arx(:,k), zeros(size(arx(:,k)))); % apply lower bound
+          
+          arfitness(k) = fitness(clean, noisy, arx(:,k)); % objective function call
           counteval = counteval+1;
       end
       toc

@@ -1,4 +1,4 @@
-function result = fitness(clean, noisy, params)
+function processed = listen_to_fittest(noisy,clean, params)
     fs = 16000;
     alpha_wiener = params(1);
     alpha_specsub = params(2);
@@ -17,4 +17,5 @@ function result = fitness(clean, noisy, params)
     result = result/len;
     fprintf('alpha_wiener: %f  alpha_specsub: %f  percent_wiener: %f \nthreshold: %f attack: %f release: %f fitness: %f\n', ... 
              alpha_wiener, alpha_specsub, percent_wiener, threshold, attack, release, result);
+    soundsc(processed, fs);
 end
