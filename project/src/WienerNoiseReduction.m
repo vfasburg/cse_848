@@ -37,7 +37,6 @@ function [esTSNR,esHRNR]=WienerNoiseReduction(ns,fs,alpha)
 
 l = length(ns);
 s=ns;
-fprintf('alpha: %f\n', alpha);
 wl = fix(0.020*fs);    % window length is 20 ms
 NFFT=2*wl;             % FFT size is twice the window length
 hanwin = hanning(wl);
