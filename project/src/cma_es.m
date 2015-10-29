@@ -9,7 +9,7 @@ function xmin=cma_es   % (mu/mu_w, lambda)-CMA-ES
   stopeval = 10*N^2;   % stop after stopeval number of function evaluations
   
   % Strategy parameter setting: Selection  
-  lambda = 4+floor(3*log(N));  % population size, offspring number
+  lambda = 8;                  % number of offspring
   mu = lambda/2;               % number of parents/points for recombination
   weights = log(mu+1/2)-log(1:mu)'; % muXone array for weighted recombination
   mu = floor(mu);        
@@ -24,14 +24,15 @@ function xmin=cma_es   % (mu/mu_w, lambda)-CMA-ES
   damps = 1 + 2*max(0, sqrt((mueff-1)/(N+1))-1) + cs; % damping for sigma 
                                                       % usually close to 1
   % Initialize dynamic (internal) strategy parameters and constants
-  pc = zeros(N,1); ps = zeros(N,1);   % evolution paths for C and sigma
+  pc = zeros(N,1);                    % evolution paths for C
+  ps = zeros(N,1);                    % evolution paths for sigma
   B = eye(N,N);                       % B defines the coordinate system
   D = ones(N,1);                      % diagonal D defines the scaling
   C = B * diag(D.^2) * B';            % covariance matrix C
   invsqrtC = B * diag(D.^-1) * B';    % C^-1/2 
   eigeneval = 0;                      % track update of B and D
-  chiN=N^0.5*(1-1/(4*N)+1/(21*N^2));  % expectation of 
-                                      %   ||N(0,I)|| == norm(randn(N,1))
+  chiN=N^0.5*(1-1/(4*N)+1/(21*N^2));  % expectation of ||N(0,I)|| == norm(randn(N,1))
+  
   [clean, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_clean.wav');
   clean = clean * 1/max(abs(clean));
   [noisy, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav');

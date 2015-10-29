@@ -67,14 +67,12 @@ overlap = fix((1-SP)*wl); % overlap between sucessive frames
 offset = wl - overlap;
 max_m = fix((l-NFFT)/offset);
 
-zvector = zeros(NFFT,1);
 oldmag = zeros(NFFT,1);
 news = zeros(l,1);
 
 phasea=zeros(NFFT,max_m);
 xmaga=zeros(NFFT,max_m);
 tsnra=zeros(NFFT,max_m);
-newmags=zeros(NFFT,max_m);
 
 %Iteration to remove noise
 
@@ -103,44 +101,13 @@ for m = 0:max_m
    %Gtsnr=max(Gtsnr,0.1);  
    Gtsnr = gaincontrol(Gtsnr,NFFT/2);
    
-      %for HRNR use
    newmag = Gtsnr .* magy;
-   newmags(:,m+1) = newmag;     %for HRNR use
    ffty = newmag.*exp(i*phasey);
    oldmag = abs(newmag);
    news(begin:begin+NFFT-1) = news(begin:begin+NFFT-1) + real(ifft(ffty,NFFT))/normFactor;
 end
 
 esTSNR=news;
-%% --------------- HRNR -----------------------
-% 
-% %non linearity
-% newharm= max(esTSNR,0);
-% news = zeros(l,1);
-% %
-% for m = 0:max_m
-%    begin = m*offset+1;    
-%    iend = m*offset+wl;
-% 
-%    nharm = hanwin.*newharm(begin:iend);
-%    ffth = abs(fft(nharm,NFFT));          %perform fast fourier transform
-% 
-%    snrham= ( (tsnra(:,m+1)).*(abs(newmags(:,m+1)).^2) + (1-(tsnra(:,m+1))) .* (ffth.^2) ) ./d;
-%    
-%    newgain= (snrham./(snrham+1));
-%    %newgain=max(newgain,0.1);  
-%    
-%    newgain=gaincontrol(newgain,NFFT/2);
-%    
-%    newmag = newgain .*  xmaga(:,m+1);
-%  
-%    ffty = newmag.*exp(i*phasea(:,m+1));
-%    
-%    news(begin:begin+NFFT-1) = news(begin:begin+NFFT-1) + real(ifft(ffty,NFFT))/normFactor;
-% end;
-% %Output
-% esHRNR=news;
-
 
 % figure;
 % [B,f,T] = specgram(ns,NFFT,fs,hanning(wl),wl-10);
@@ -161,11 +128,7 @@ esTSNR=news;
 % xlabel('Time (sec)');ylabel('Frequency (Hz)');
 
 
-
-
-
-
-function        NewGain=gaincontrol(Gain,ConstraintInLength)
+function NewGain=gaincontrol(Gain,ConstraintInLength)
 %
 %Title  : Additional Constraint on the impulse response  
 %         to ensure linear convolution property
