@@ -1,12 +1,12 @@
 function xmin=cma_es   % (mu/mu_w, lambda)-CMA-ES
-
+  rng('shuffle');
   % --------------------  Initialization --------------------------------  
   % User defined input parameters (need to be edited)
   N = 6;               % number of objective variables/problem dimension
   xmean = rand(N,1);    % objective variables initial point
   sigma = 0.2;          % coordinate wise standard deviation (step size)
   stopfitness = 1e-10;  % stop if fitness < stopfitness (minimization)
-  stopeval = 10*N^2;   % stop after stopeval number of function evaluations
+  stopeval = 600*N^2;   % stop after stopeval number of function evaluations
   
   % Strategy parameter setting: Selection  
   lambda = 8;                  % number of offspring
@@ -47,6 +47,7 @@ function xmin=cma_es   % (mu/mu_w, lambda)-CMA-ES
       parfor k=1:lambda,
           arx(:,k) = xmean + sigma * B * (D .* randn(N,1)); % m + sig * Normal(0,C) 
           arx(:,k) = max(arx(:,k), zeros(size(arx(:,k)))); % apply lower bound
+          arx(:,k) = min(arx(:,k), [2;2;2;0.5;20;20]); % apply lower bound
           
           arfitness(k) = fitness(clean, noisy, arx(:,k)); % objective function call
           counteval = counteval+1;
