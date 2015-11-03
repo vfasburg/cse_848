@@ -35,8 +35,10 @@ function xnew = spectralSubtraction(data, fs, alpha)
         % window time domain data & get fft
         x = cast(data(start:finish),'double') .* ham;
         y = fft(x);
+        y_phase = angle(y);
+        y = abs(y);
 
-        freq = alpha * abs(y_old) + (1 - alpha) * abs(y); % using abs values seems to work better
+        freq = alpha * abs(y_old) + (1 - alpha) * y; % using abs values seems to work better
         y_old = freq;
 
         % update the histogram
@@ -57,7 +59,8 @@ function xnew = spectralSubtraction(data, fs, alpha)
             noiseEnergy(f) = binMinimums(maxbin);
         end	
         % subtract estimated noise energy
-        y = y .* (abs(freq) - noiseEnergy)./abs(freq);
+        % y = y .* (abs(freq) - noiseEnergy)./abs(freq);
+        y = (y - noiseEnergy) .*exp(1i*y_phase);
         temp = real(ifft(y));
         xnew(start:finish) = xnew(start:finish) + temp;
 
