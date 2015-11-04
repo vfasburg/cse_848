@@ -1,4 +1,4 @@
-function output=spec_sub_rmr(signal,fs)
+function output=spec_sub_rmr(signal,fs, NoiseLength, NoiseMargin, Hangover)
     % Spectral Subtraction based on Boll 79. Amplitude spectral subtraction 
     % Includes Magnitude Averaging and Residual noise Reduction
     % S is the noisy signal, FS is the sampling frequency and IS is the initial
@@ -6,7 +6,7 @@ function output=spec_sub_rmr(signal,fs)
     %
     % April-05
     % Esfandiar Zavarehei
-
+    NoiseCounter = 0;
     IS=.25; %seconds
     W=fix(.025*fs); %Window length is 25 ms
     nfft=W;
@@ -24,7 +24,7 @@ function output=spec_sub_rmr(signal,fs)
 
     N= mean(Y(:,1:init_silence)')'; %initial Noise Power Spectrum mean
     NRM=zeros(size(N));% Noise Residual Maximum (Initialization)
-    NoiseLength=9;%This is a smoothing factor for the noise updating
+    % NoiseLength=9;%This is a smoothing factor for the noise updating
     X = zeros(size(Y));
     YS=Y; %Y Magnitude Averaged
     for i=2:(numberOfFrames-1)
@@ -32,11 +32,11 @@ function output=spec_sub_rmr(signal,fs)
     end
 
     for i=1:numberOfFrames
-        SpeechFlag = voice_detector(Y(:,i).^(1/Gamma),N.^(1/Gamma)); %Magnitude Spectrum Distance VAD
+        SpeechFlag = voice_detector(Y(:,i).^(1/Gamma),N.^(1/Gamma), NoiseMargin, Hangover, NoiseCounter); %Magnitude Spectrum Distance VAD
         if SpeechFlag==0
             N=(NoiseLength*N+Y(:,i))/(NoiseLength+1); %Update and smooth noise
             NRM=max(NRM,YS(:,i)-N);%Update Maximum Noise Residue
-            X(:,i)=0.01*Y(:,i); % 0.01 gives about 40db of rejection
+            X(:,i)=0.01*Y(:,i); %gives about 40db of rejection
         else
             D=Y(:,i)-N; % Specral Subtraction (previously used YS)
             if i>1 && i<numberOfFrames %Residual Noise Reduction            
@@ -94,7 +94,7 @@ function ReconstructedSignal=OverlapAdd2(XNEW,yphase,windowLen,ShiftLen)
     ReconstructedSignal=sig;
 end
 
-function SpeechFlag = voice_detector(signal,noise,NoiseMargin,Hangover)
+function SpeechFlag = voice_detector(signal,noise,NoiseMargin,Hangover, NoiseCounter)
 
     %[NOISEFLAG, SPEECHFLAG, NOISECOUNTER, DIST]=voice_detector(SIGNAL,NOISE,NOISECOUNTER,NOISEMARGIN,HANGOVER)
     %Spectral Distance Voice Activity Detector
@@ -111,28 +111,13 @@ function SpeechFlag = voice_detector(signal,noise,NoiseMargin,Hangover)
     %edited by Esfandiar Zavarehei
     %Sep-04
 
-    if nargin<3
-        NoiseMargin=3;
-    end
-    if nargin<4
-        Hangover=8;
-    end
-
-    persistent NoiseCounter;
-    if(isempty(NoiseCounter))
-        NoiseCounter = 0;
-    end
-
-
     SpectralDist= 20*(log10(signal)-log10(noise));
     SpectralDist(SpectralDist<0)=0;
 
     Dist=mean(SpectralDist); 
     if (Dist < NoiseMargin) 
-        NoiseFlag=1; 
         NoiseCounter=NoiseCounter+1;
     else
-        NoiseFlag=0;
         NoiseCounter=0;
     end
 
