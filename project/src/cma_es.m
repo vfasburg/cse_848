@@ -9,7 +9,7 @@ N = 8;               % number of objective variables/problem dimension
 xmean = rand(N,1);    % objective variables initial point
 sigma = 0.2;          % coordinate wise standard deviation (step size)
 stopfitness = 1e-10;  % stop if fitness < stopfitness (minimization)
-stopeval = 600*N^2;   % stop after stopeval number of function evaluations
+stopeval = 200*12;   % stop after stopeval number of function evaluations
 
 % Strategy parameter setting: Selection
 lambda = 12;                  % number of offspring

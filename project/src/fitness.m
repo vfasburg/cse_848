@@ -2,8 +2,8 @@ function result = fitness(clean, noisy, params)
     fs = 16000;
     %apply proper ranges to parameters
     alpha_wiener = params(1) * 2;
-    percent_wiener = params(2) * 4 - 2;
-    percent_specsub = params(3) * 4 - 2;
+    percent_wiener = params(2);
+    percent_specsub = params(3);
     threshold = params(4) * 0.25;
     attack = params(5) * 20;
     noise_length = params(6) * 20;
@@ -17,6 +17,7 @@ function result = fitness(clean, noisy, params)
     specsub = specsub(1:len);
     weiner = weiner(1:len);
     clean = clean(1:len);
+    
     
     processed = noise_gate(weiner + specsub, threshold, attack, attack);
     result = sum(abs(clean - processed))/len;
