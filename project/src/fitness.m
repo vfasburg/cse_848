@@ -1,4 +1,4 @@
-function result = fitness(clean, noisy, params)
+function data = fitness(clean, noisy, params,  runNum, gen, individual)
     fs = 16000;
     %apply proper ranges to parameters
     alpha_wiener = params(1) * 2;
@@ -18,10 +18,7 @@ function result = fitness(clean, noisy, params)
     weiner = weiner(1:len);
     clean = clean(1:len);
     
-    
     processed = noise_gate(weiner + specsub, threshold, attack, attack);
     result = sum(abs(clean - processed))/len;
-
-    fprintf('alpha_wiener: %f  percent_wiener: %f \npercent_specsub: %f threshold: %f \nattack: %f noise len: %f \nnoise margin: %f hangover: %f fitness: %f\n', ... 
-             alpha_wiener, percent_wiener, percent_specsub, threshold, attack, noise_length, noise_margin, hangover, result);
+    data = [runNum, gen, individual, alpha_wiener, percent_wiener, percent_specsub, threshold, attack, noise_length, noise_margin, hangover, result];
 end

@@ -1,5 +1,8 @@
-function xmean=cma_es   % (mu/mu_w, lambda)-CMA-ES
+function xmean=cma_es(runNum)
 rng('shuffle');
+if nargin<1
+    runNum=1;
+end
 
 % --------------------  Initialization --------------------------------
 % User defined input parameters (need to be edited)
@@ -37,16 +40,19 @@ eigeneval = 0;                      % track update of B and D
 chiN=N^0.5*(1-1/(4*N)+1/(21*N^2));  % expectation of ||N(0,I)|| == norm(randn(N,1))
 
 %[clean, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_clean.wav');
-[clean, fs] = audioread('../audio/I_am_sitting_clean.wav');
+[clean, fs] = wavread('../audio/I_am_sitting_clean.wav');
 clean = clean * 1/max(abs(clean));
 %[noisy, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav');
-[noisy, fs] = audioread('../audio/I_am_sitting_dirty.wav');
+[noisy, fs] = wavread('../audio/I_am_sitting_dirty.wav');
 noisy = noisy * 1/max(abs(noisy));
 
+fileID = fopen('./data.csv', 'w');
+fprintf(fileID, 'run number,generation num,individual num,alpha_wiener,percent_wiener,percent_specsub,threshold,attack,noise len,noise margin,hangover,fitness\n');
+format = '%i,%i,%i,%f,%f,%f,%f,%f,%f,%f,%f,%f\n';
+    
 % -------------------- Generation Loop --------------------------------
 % the next 40 lines contain the 20 lines of interesting code
 while counteval < stopeval
-    fprintf('generation %d:\n', generationNum);
     % Generate and evaluate lambda offspring
     tic;
     parfor k=1:lambda,
@@ -55,8 +61,12 @@ while counteval < stopeval
         arx(:,k) = max(arx(:,k), zeros(N, 1)); 
         arx(:,k) = min(arx(:,k), ones(N, 1));
         
-        arfitness(k) = fitness(clean, noisy, arx(:,k)); % objective function call
+        data(k,:) = fitness(clean, noisy, arx(:,k), runNum, generationNum, k); % objective function call
         counteval = counteval+1;
+    end
+    arfitness = data(:,end);
+    for k = 1:lambda
+        fprintf(fileID, format, data(k, :));
     end
     toc
     % Sort by fitness and compute weighted mean into xmean
@@ -96,7 +106,7 @@ while counteval < stopeval
     end
     generationNum = generationNum + 1;
 end % while, end generation loop
-
+fclose(fileID);
 xmin = arx(:, arindex(1)); % Return best point of last iteration.
 % Notice that xmean is expected to be even
 % better.
