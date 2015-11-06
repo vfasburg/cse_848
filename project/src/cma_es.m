@@ -36,9 +36,11 @@ invsqrtC = B * diag(D.^-1) * B';    % C^-1/2
 eigeneval = 0;                      % track update of B and D
 chiN=N^0.5*(1-1/(4*N)+1/(21*N^2));  % expectation of ||N(0,I)|| == norm(randn(N,1))
 
-[clean, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_clean.wav');
+%[clean, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_clean.wav');
+[clean, fs] = audioread('..\audio\I_am_sitting_clean.wav');
 clean = clean * 1/max(abs(clean));
-[noisy, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav');
+%[noisy, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav');
+[noisy, fs] = audioread('..\audio\I_am_sitting_dirty.wav');
 noisy = noisy * 1/max(abs(noisy));
 
 % -------------------- Generation Loop --------------------------------
