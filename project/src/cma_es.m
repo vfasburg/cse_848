@@ -1,4 +1,5 @@
 function xmean=cma_es(runNum)
+cd(fileparts(mfilename('fullpath')));
 rng('shuffle');
 if nargin<1
     runNum=1;
@@ -11,7 +12,7 @@ counteval = 0;
 N = 8;               % number of objective variables/problem dimension
 xmean = rand(N,1);    % objective variables initial point
 sigma = 0.2;          % coordinate wise standard deviation (step size)
-stopfitness = 1e-10;  % stop if fitness < stopfitness (minimization)
+stopStuckGens = 20;  % stop if fitness doesn't improve after this num gens
 stopeval = 200*12;   % stop after stopeval number of function evaluations
 
 % Strategy parameter setting: Selection
@@ -39,16 +40,18 @@ invsqrtC = B * diag(D.^-1) * B';    % C^-1/2
 eigeneval = 0;                      % track update of B and D
 chiN=N^0.5*(1-1/(4*N)+1/(21*N^2));  % expectation of ||N(0,I)|| == norm(randn(N,1))
 
-%[clean, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_clean.wav');
+%[clean, fs] = audioread('../audio/I_am_sitting_clean.wav');
+%[noisy, fs] = audioread('../audio/I_am_sitting_dirty.wav');
 [clean, fs] = wavread('../audio/I_am_sitting_clean.wav');
-clean = clean * 1/max(abs(clean));
-%[noisy, fs] = wavread('C:\Users\Vince\Documents\School\MSU\2015_Fall\CSE848\Audio\I_am_sitting_dirty.wav');
 [noisy, fs] = wavread('../audio/I_am_sitting_dirty.wav');
-noisy = noisy * 1/max(abs(noisy));
+scaleFactor = 0.707/(min(max(abs(noisy)), max(abs(clean))))
+noisy = noisy * scaleFactor;
+clean = clean * scaleFactor;
 
 fileID = fopen('./data.csv', 'w');
 fprintf(fileID, 'run number,generation num,individual num,alpha_wiener,percent_wiener,percent_specsub,threshold,attack,noise len,noise margin,hangover,fitness\n');
 format = '%i,%i,%i,%f,%f,%f,%f,%f,%f,%f,%f,%f\n';
+avgfitness = inf * ones(stopStuckGens,1);
     
 % -------------------- Generation Loop --------------------------------
 % the next 40 lines contain the 20 lines of interesting code
@@ -73,7 +76,7 @@ while counteval < stopeval
     [arfitness, arindex] = sort(arfitness); % minimization
     xold = xmean;
     xmean = arx(:,arindex(1:mu))*weights;   % recombination, new mean value
-    
+    avgfitness = [avgfitness(1:stopStuckGens-1);mean(arfitness)];
     % Cumulation: Update evolution paths
     ps = (1-cs)*ps ...
         + sqrt(cs*(2-cs)*mueff) * invsqrtC * (xmean-xold) / sigma;
@@ -100,8 +103,8 @@ while counteval < stopeval
         invsqrtC = B * diag(D.^-1) * B';
     end
     
-    % Break, if fitness is good enough or condition exceeds 1e14, better termination methods are advisable
-    if arfitness(1) <= stopfitness || max(D) > 1e7 * min(D)
+    % Break if evolution has stopped improving for a while
+    if avgfitness(stopStuckGens) >= min(avgfitness(1:stopStuckGens-1))
         break;
     end
     generationNum = generationNum + 1;

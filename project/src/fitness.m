@@ -2,8 +2,8 @@ function data = fitness(clean, noisy, params,  runNum, gen, individual)
     fs = 16000;
     %apply proper ranges to parameters
     alpha_wiener = params(1) * 2;
-    percent_wiener = params(2);
-    percent_specsub = params(3);
+    percent_wiener = params(2) * 4 - 2;
+    percent_specsub = params(3) * 4 - 2;
     threshold = params(4) * 0.25;
     attack = params(5) * 20;
     noise_length = params(6) * 20;
