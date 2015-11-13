@@ -1,0 +1,7 @@
+Manual test using weiner only:
+alpha_wiener =0.98 percent_wiener=1 percent_specsub=0 threshold=0.03 attack = 1.5 noise len=18 noise margin=8 hangover=3
+yields fitness = 0.0301
+
+Manual test using weiner only:
+alpha_wiener=0 percent_wiener=0 percent_specsub=1 threshold=0.03 attack = 1.5 noise len=18 noise margin=8 hangover=3
+ans = 0.0316
