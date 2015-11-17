@@ -52,8 +52,8 @@ scaleFactor = 0.707/(min(max(abs(noisy)), max(abs(clean)))); %scale to -3db
 noisy = noisy * scaleFactor;
 clean = clean * scaleFactor;
 
-%prepare output file
-fileID = fopen('./data.csv', 'w');
+
+fileID = fopen(strcat('./data/data_',num2str(runNum),'.csv'), 'w');
 fprintf(fileID, 'run number,generation num,individual num,alpha_wiener,percent_wiener,percent_specsub,threshold,attack,noise len,noise margin,hangover,fitness\n');
 format = '%i,%i,%i,%f,%f,%f,%f,%f,%f,%f,%f,%f\n';
     
