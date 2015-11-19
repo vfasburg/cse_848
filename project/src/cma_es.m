@@ -1,4 +1,4 @@
-function xmean=cma_es(runNum)
+function xmean=cma_es(runNum, numPop)
 cd(fileparts(mfilename('fullpath')));
 rng('shuffle');
 if nargin<1
@@ -8,7 +8,7 @@ end
 % --------------------  Initialization --------------------------------
 
 % Strategy parameter setting: Selection
-lambda = 12;                  % number of offspring
+lambda = numPop;                  % number of offspring
 mu = lambda/2;               % number of parents/points for recombination
 weights = sqrt(log(mu+1/2)-log(1:mu))'; % muXone array for weighted recombination
 mu = floor(mu);
@@ -20,7 +20,7 @@ N = 8;               % number of objective variables/problem dimension
 xmean = rand(N,1);   % objective variables initial point
 sigma = 0.2;         % step size
 stopStuckGens = 10;  % stop if fitness doesn't improve after this num gens
-stopeval = 300*12;   % stop after 300 generations
+stopeval = 300*numPop;   % stop after 300 generations
 avgfitness = inf * ones(stopStuckGens,1);
 
 % Strategy parameter setting: Adaptation
@@ -52,9 +52,8 @@ scaleFactor = 0.707/(min(max(abs(noisy)), max(abs(clean)))); %scale to -3db
 noisy = noisy * scaleFactor;
 clean = clean * scaleFactor;
 
-
-fileID = fopen(strcat('./data/data_',num2str(runNum),'.csv'), 'w');
-fprintf(fileID, 'run number,generation num,individual num,alpha_wiener,percent_wiener,percent_specsub,threshold,attack,noise len,noise margin,hangover,fitness\n');
+fileID = fopen(strcat('./data_',num2str(numPop),'/data_',num2str(numPop),'_',num2str(runNum),'.csv'), 'w');
+%fprintf(fileID, 'run number,generation num,individual num,alpha_wiener,percent_wiener,percent_specsub,threshold,attack,noise len,noise margin,hangover,fitness\n');
 format = '%i,%i,%i,%f,%f,%f,%f,%f,%f,%f,%f,%f\n';
     
 % -------------------- Generation Loop --------------------------------
