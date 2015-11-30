@@ -1,11 +1,11 @@
 #!/bin/bash -login
-#PBS -l walltime=01:30:00,mem=8gb,nodes=1:ppn=12
+#PBS -l walltime=02:30:00,software=MATLAB,mem=8gb,nodes=1:ppn=20:intel14
 #PBS -j oe
 #PBS -W x=gres:MATLAB%Distrib_Computing_Toolbox
 #PBS -t 1-50
 
 cd ${PBS_O_WORKDIR}
 
-matlab -nodisplay -nosplash -r "cma_es(${PBS_ARRAYID},24)"
+matlab-mt -nodisplay -nosplash -r "cma_es(${PBS_ARRAYID},24)"
 
 qstat -f ${PBS_JOBID}
